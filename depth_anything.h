@@ -14,7 +14,7 @@ class DepthAnything
 public:
 	DepthAnything();
     void init(std::string model_path, nvinfer1::ILogger& logger);
-	cv::Mat predict(cv::Mat& image);
+	cv::Mat predict(cv::Mat& image, bool applyColor, bool relative, float start, float end);
 	~DepthAnything();
 	
 private:

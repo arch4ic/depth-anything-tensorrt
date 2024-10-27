@@ -204,8 +204,30 @@ int main(int argc, char** argv) {
             string generated_name;
             string full_output_location;
             string current_suffix;
+            float start_levels = 0;
+            float end_levels = 0;
+            bool greyscale = false;
             if (!options["prefix"].empty()) {
                 prefix = options["prefix"];
+            }
+            if (!options["greyscale"].empty()) {
+                greyscale = true;
+            }
+            if (!options["start"].empty()) {
+                try {
+                    start_levels = stod(options["start"]);
+                } catch (const invalid_argument&) {
+                    cerr << "Invalid start value!" << endl;
+                    abort();
+                }
+            }
+            if (!options["end"].empty()) {
+                try {
+                    end_levels = stod(options["end"]);
+                } catch (const invalid_argument&) {
+                    cerr << "Invalid end value!" << endl;
+                    abort();
+                }
             }
             //iterate through videoPathList and render depthmaps.
             for (const auto& videoPath : videoPathList) {
@@ -251,10 +273,10 @@ int main(int argc, char** argv) {
                 }
 
                 // Create a VideoWriter object to save the processed video
-                full_output_location += ".avi";
+                full_output_location += ".mp4";
 
                 cout << full_output_location << ":" << endl;
-                cv::VideoWriter output_video(full_output_location, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), fps, cv::Size(width, height));
+                cv::VideoWriter output_video(full_output_location, cv::VideoWriter::fourcc('a', 'v', 'c', '1'), fps, cv::Size(width, height));
                 while (1) {
                     frame_num ++;
                     cv::Mat frame;
@@ -263,7 +285,7 @@ int main(int argc, char** argv) {
                     if (frame.empty())
                         break;
                     auto start = std::chrono::system_clock::now();
-                    cv::Mat result_d = depth_model.predict(frame);
+                    cv::Mat result_d = depth_model.predict(frame, !greyscale, false, start_levels, end_levels);
                     auto end = chrono::system_clock::now();
                     tpf = chrono::duration_cast<std::chrono::duration<double, std::milli>>(end - start).count();
 
@@ -346,7 +368,7 @@ int main(int argc, char** argv) {
                 
 
                 auto start = chrono::system_clock::now();
-                cv::Mat result_d = depth_model.predict(frame);
+                cv::Mat result_d = depth_model.predict(frame, !greyscale, false, start_levels, end_levels);
                 auto end = chrono::system_clock::now();
                 double tpf = chrono::duration_cast<std::chrono::duration<double, std::milli>>(end - start).count();
                 cout << "time per frame:" << setw(9) << tpf << "ms fps:" << setw(4) << floor(100 / (tpf / 1000)) / 100.0 << endl;

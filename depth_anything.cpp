@@ -95,7 +95,7 @@ std::vector<float> DepthAnything::preprocess(cv::Mat& image)
     return input_tensor;
 }
 
-cv::Mat DepthAnything::predict(cv::Mat& image)
+cv::Mat DepthAnything::predict(cv::Mat& image, bool applyColor, bool relative, float start, float end)
 {
     cv::Mat clone_image;
     image.copyTo(clone_image);
@@ -121,11 +121,18 @@ cv::Mat DepthAnything::predict(cv::Mat& image)
 
     // Convert the entire depth_data vector to a CV_32FC1 Mat
     cv::Mat depth_mat(input_h, input_w, CV_32FC1, depth_data);
-    cv::normalize(depth_mat, depth_mat, 0, 255, cv::NORM_MINMAX, CV_8U);
+    //cv::normalize(depth_mat, depth_mat, 0 - end, 255 + start, cv::NORM_MINMAX, CV_8U);
+    depth_mat.convertTo(depth_mat, CV_8U, 1000 + start, 0 - end);
+    
 
     // Create a colormap from the depth data
     cv::Mat colormap;
-    cv::applyColorMap(depth_mat, colormap, cv::COLORMAP_INFERNO);
+    if (applyColor)
+    {
+        cv::applyColorMap(depth_mat, colormap, cv::COLORMAP_INFERNO);
+    } else {
+        cv::cvtColor(depth_mat, colormap, cv::COLOR_GRAY2BGR);
+    }
 
     // Rescale the colormap
     int limX, limY;
