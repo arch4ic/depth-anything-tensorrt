@@ -121,8 +121,12 @@ cv::Mat DepthAnything::predict(cv::Mat& image, bool applyColor, bool relative, f
 
     // Convert the entire depth_data vector to a CV_32FC1 Mat
     cv::Mat depth_mat(input_h, input_w, CV_32FC1, depth_data);
-    //cv::normalize(depth_mat, depth_mat, 0 - end, 255 + start, cv::NORM_MINMAX, CV_8U);
-    depth_mat.convertTo(depth_mat, CV_8U, 100 + start, 0 - end);
+    if (relative) {
+        depth_mat.convertTo(depth_mat, CV_8U, 100 + start, 0 - end);
+    } else {
+        cv::normalize(depth_mat, depth_mat, 0 - end, 255 + start, cv::NORM_MINMAX, CV_8U);
+    }
+    
     
 
     // Create a colormap from the depth data

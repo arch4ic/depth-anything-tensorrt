@@ -207,6 +207,7 @@ int main(int argc, char** argv) {
             float start_levels = 0;
             float end_levels = 0;
             bool greyscale = false;
+            bool relative_map = false;
             if (!options["prefix"].empty()) {
                 prefix = options["prefix"];
             }
@@ -228,6 +229,9 @@ int main(int argc, char** argv) {
                     cerr << "Invalid end value!" << endl;
                     abort();
                 }
+            }
+            if (!options["relative"].empty()) {
+                relative_map = true;
             }
             //iterate through videoPathList and render depthmaps.
             for (const auto& videoPath : videoPathList) {
@@ -291,7 +295,7 @@ int main(int argc, char** argv) {
                     if (frame.empty())
                         break;
                     auto start = std::chrono::system_clock::now();
-                    cv::Mat result_d = depth_model.predict(frame, !greyscale, false, start_levels, end_levels);
+                    cv::Mat result_d = depth_model.predict(frame, !greyscale, relative_map, start_levels, end_levels);
                     auto end = chrono::system_clock::now();
                     tpf = chrono::duration_cast<std::chrono::duration<double, std::milli>>(end - start).count();
 
@@ -374,7 +378,7 @@ int main(int argc, char** argv) {
                 
 
                 auto start = chrono::system_clock::now();
-                cv::Mat result_d = depth_model.predict(frame, !greyscale, false, start_levels, end_levels);
+                cv::Mat result_d = depth_model.predict(frame, !greyscale, relative_map, start_levels, end_levels);
                 auto end = chrono::system_clock::now();
                 double tpf = chrono::duration_cast<std::chrono::duration<double, std::milli>>(end - start).count();
                 cout << "time per frame:" << setw(9) << tpf << "ms fps:" << setw(4) << floor(100 / (tpf / 1000)) / 100.0 << endl;
