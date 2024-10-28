@@ -273,10 +273,16 @@ int main(int argc, char** argv) {
                 }
 
                 // Create a VideoWriter object to save the processed video
-                full_output_location += ".mp4";
+                int fourcc_code = cv::VideoWriter::fourcc('m', 'p', '4', 'v');
+                if (!options["lossless"].empty()) {
+                    full_output_location += ".avi";
+                    fourcc_code = cv::VideoWriter::fourcc('U', 'L', 'R', 'G');
+                } else {
+                    full_output_location += ".mp4";
+                }
+                cv::VideoWriter output_video(full_output_location, fourcc_code, fps, cv::Size(width, height));
 
                 cout << full_output_location << ":" << endl;
-                cv::VideoWriter output_video(full_output_location, cv::VideoWriter::fourcc('a', 'v', 'c', '1'), fps, cv::Size(width, height));
                 while (1) {
                     frame_num ++;
                     cv::Mat frame;
